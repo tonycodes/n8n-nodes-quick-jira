@@ -1,0 +1,22 @@
+{
+	"node": "n8n-nodes-quick-jira.QuickJira",
+	"nodeVersion": "1.0",
+	"codex": {
+		"categories": ["Productivity"],
+		"subcategories": {
+			"Productivity": ["Project Management"]
+		},
+		"resources": {
+			"primaryDocumentation": [
+				{
+					"url": "https://www.atlassian.com/software/jira"
+				}
+			],
+			"credentialDocumentation": [
+				{
+					"url": "https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/"
+				}
+			]
+		}
+	}
+}
