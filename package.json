@@ -1,6 +1,6 @@
 {
     "name": "n8n-nodes-quick-jira",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "description": "Simplified Jira node for n8n with smart defaults and common operations - create tickets, update status, add comments, and search with ease",
     "license": "MIT",
     "homepage": "https://github.com/tonyjames/n8n-nodes-quick-jira",
@@ -20,15 +20,15 @@
         "type": "git",
         "url": "https://github.com/tonyjames/n8n-nodes-quick-jira.git"
     },
-   "scripts": {
-		"build": "n8n-node build",
-		"build:watch": "tsc --watch",
-		"dev": "n8n-node dev",
-		"lint": "n8n-node lint",
-		"lint:fix": "n8n-node lint --fix",
-		"release": "n8n-node release",
-		"prepublishOnly": "n8n-node prerelease"
-	},
+    "scripts": {
+        "build": "n8n-node build",
+        "build:watch": "tsc --watch",
+        "dev": "n8n-node dev",
+        "lint": "n8n-node lint",
+        "lint:fix": "n8n-node lint --fix",
+        "release": "n8n-node release",
+        "prepublishOnly": "n8n-node prerelease"
+    },
     "files": [
         "dist"
     ],
