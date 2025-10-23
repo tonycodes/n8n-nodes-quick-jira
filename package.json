@@ -1,6 +1,6 @@
 {
     "name": "n8n-nodes-quick-jira",
-    "version": "0.1.2",
+    "version": "0.1.3",
     "description": "Simplified Jira node for n8n with smart defaults and common operations - create tickets, update status, add comments, and search with ease",
     "license": "MIT",
     "homepage": "https://github.com/tonyjames/n8n-nodes-quick-jira",
