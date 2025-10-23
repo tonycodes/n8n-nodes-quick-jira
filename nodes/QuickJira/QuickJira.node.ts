@@ -111,6 +111,12 @@ export class QuickJira implements INodeType {
 				noDataExpression: true,
 				options: [
 					{
+						name: 'Add Attachment',
+						value: 'addAttachment',
+						description: 'Attach a file to a ticket',
+						action: 'Add an attachment',
+					},
+					{
 						name: 'Add Comment',
 						value: 'addComment',
 						description: 'Add a comment to a ticket',
@@ -299,7 +305,7 @@ export class QuickJira implements INodeType {
 				required: true,
 				displayOptions: {
 					show: {
-						operation: ['updateStatus', 'addComment', 'get'],
+						operation: ['updateStatus', 'addComment', 'addAttachment', 'get'],
 					},
 				},
 				placeholder: 'PROJ-123',
@@ -351,6 +357,22 @@ export class QuickJira implements INodeType {
 					},
 				},
 				description: 'The comment text to add',
+			},
+
+			// Add Attachment Fields
+			{
+				displayName: 'Binary Property',
+				name: 'binaryPropertyName',
+				type: 'string',
+				default: 'data',
+				required: true,
+				displayOptions: {
+					show: {
+						operation: ['addAttachment'],
+					},
+				},
+				placeholder: 'data',
+				description: 'Name of the binary property containing the file to attach',
 			},
 
 			// Search Fields
@@ -680,6 +702,52 @@ export class QuickJira implements INodeType {
 						commentId: commentResponse.id,
 						message: 'Comment added successfully',
 					};
+				} else if (operation === 'addAttachment') {
+					const issueKey = this.getNodeParameter('issueKey', i) as string;
+					const binaryPropertyName = this.getNodeParameter('binaryPropertyName', i) as string;
+
+					const binaryData = this.helpers.assertBinaryData(i, binaryPropertyName);
+					const dataBuffer = await this.helpers.getBinaryDataBuffer(i, binaryPropertyName);
+
+					const credentials = await this.getCredentials('quickJiraApi');
+					const domain = credentials.domain as string;
+
+					const formData = {
+						file: {
+							value: dataBuffer,
+							options: {
+								filename: binaryData.fileName,
+								contentType: binaryData.mimeType,
+							},
+						},
+					};
+
+					const options: IHttpRequestOptions = {
+						headers: {
+							'X-Atlassian-Token': 'no-check',
+						},
+						method: 'POST',
+						url: `${domain}/rest/api/2/issue/${issueKey}/attachments`,
+						body: formData,
+					};
+
+					try {
+						const attachmentResponse = await this.helpers.httpRequestWithAuthentication.call(
+							this,
+							'quickJiraApi',
+							options,
+						) as IDataObject[];
+
+						responseData = {
+							success: true,
+							issueKey,
+							attachmentId: attachmentResponse[0]?.id,
+							filename: attachmentResponse[0]?.filename,
+							message: 'Attachment added successfully',
+						};
+					} catch (error) {
+						throw new NodeApiError(this.getNode(), error as JsonObject);
+					}
 				} else if (operation === 'get') {
 					const issueKey = this.getNodeParameter('issueKey', i) as string;
 					const issue = await jiraApiRequest.call(this, `/api/2/issue/${issueKey}`, 'GET') as IDataObject;

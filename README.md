@@ -40,7 +40,7 @@ npm install n8n-nodes-quick-jira
 
 ## Operations
 
-Quick Jira supports five simplified operations:
+Quick Jira supports six simplified operations:
 
 ### 1. Create Ticket
 Create a new Jira ticket with smart defaults and minimal configuration.
@@ -75,7 +75,16 @@ Add a comment to a ticket with plain text input.
 
 **Returns:** Success confirmation with comment ID
 
-### 4. Get Ticket
+### 4. Add Attachment
+Attach a file to a Jira ticket.
+
+**Fields:**
+- Issue Key
+- Binary Property (name of the binary data property containing the file)
+
+**Returns:** Success confirmation with attachment ID and filename
+
+### 5. Get Ticket
 Retrieve ticket details with simplified, flattened JSON output.
 
 **Fields:**
@@ -103,7 +112,7 @@ Retrieve ticket details with simplified, flattened JSON output.
 }
 ```
 
-### 5. Search Tickets
+### 6. Search Tickets
 Search for tickets using pre-built queries or custom JQL.
 
 **Search Types:**
@@ -197,7 +206,20 @@ Slack Trigger → Quick Jira (Add Comment)
 - Issue Key: `PROJ-123`
 - Comment: `{{$json["slack_message"]}}`
 
-### Example 4: Search and Process Open Tickets
+### Example 4: Attach Files to Tickets
+
+```
+HTTP Request (download file) → Quick Jira (Add Attachment)
+```
+
+**Quick Jira Configuration:**
+- Operation: Add Attachment
+- Issue Key: `PROJ-123`
+- Binary Property: `data`
+
+Attach files from previous nodes (like HTTP downloads, Read Binary Files, etc.) to Jira tickets.
+
+### Example 5: Search and Process Open Tickets
 
 ```
 Schedule Trigger → Quick Jira (Search) → Process Tickets
@@ -210,7 +232,7 @@ Schedule Trigger → Quick Jira (Search) → Process Tickets
 
 Returns an array of tickets you can loop through with a Split In Batches node.
 
-### Example 5: Get Ticket Details for Reporting
+### Example 6: Get Ticket Details for Reporting
 
 ```
 HTTP Request → Quick Jira (Get Ticket) → Send to Slack

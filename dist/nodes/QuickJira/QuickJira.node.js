@@ -87,6 +87,12 @@ class QuickJira {
                     noDataExpression: true,
                     options: [
                         {
+                            name: 'Add Attachment',
+                            value: 'addAttachment',
+                            description: 'Attach a file to a ticket',
+                            action: 'Add an attachment',
+                        },
+                        {
                             name: 'Add Comment',
                             value: 'addComment',
                             description: 'Add a comment to a ticket',
@@ -271,7 +277,7 @@ class QuickJira {
                     required: true,
                     displayOptions: {
                         show: {
-                            operation: ['updateStatus', 'addComment', 'get'],
+                            operation: ['updateStatus', 'addComment', 'addAttachment', 'get'],
                         },
                     },
                     placeholder: 'PROJ-123',
@@ -321,6 +327,20 @@ class QuickJira {
                         },
                     },
                     description: 'The comment text to add',
+                },
+                {
+                    displayName: 'Binary Property',
+                    name: 'binaryPropertyName',
+                    type: 'string',
+                    default: 'data',
+                    required: true,
+                    displayOptions: {
+                        show: {
+                            operation: ['addAttachment'],
+                        },
+                    },
+                    placeholder: 'data',
+                    description: 'Name of the binary property containing the file to attach',
                 },
                 {
                     displayName: 'Search Type',
@@ -495,6 +515,7 @@ class QuickJira {
         };
     }
     async execute() {
+        var _a, _b;
         const items = this.getInputData();
         const returnData = [];
         const operation = this.getNodeParameter('operation', 0);
@@ -580,6 +601,44 @@ class QuickJira {
                         commentId: commentResponse.id,
                         message: 'Comment added successfully',
                     };
+                }
+                else if (operation === 'addAttachment') {
+                    const issueKey = this.getNodeParameter('issueKey', i);
+                    const binaryPropertyName = this.getNodeParameter('binaryPropertyName', i);
+                    const binaryData = this.helpers.assertBinaryData(i, binaryPropertyName);
+                    const dataBuffer = await this.helpers.getBinaryDataBuffer(i, binaryPropertyName);
+                    const credentials = await this.getCredentials('quickJiraApi');
+                    const domain = credentials.domain;
+                    const formData = {
+                        file: {
+                            value: dataBuffer,
+                            options: {
+                                filename: binaryData.fileName,
+                                contentType: binaryData.mimeType,
+                            },
+                        },
+                    };
+                    const options = {
+                        headers: {
+                            'X-Atlassian-Token': 'no-check',
+                        },
+                        method: 'POST',
+                        url: `${domain}/rest/api/2/issue/${issueKey}/attachments`,
+                        body: formData,
+                    };
+                    try {
+                        const attachmentResponse = await this.helpers.httpRequestWithAuthentication.call(this, 'quickJiraApi', options);
+                        responseData = {
+                            success: true,
+                            issueKey,
+                            attachmentId: (_a = attachmentResponse[0]) === null || _a === void 0 ? void 0 : _a.id,
+                            filename: (_b = attachmentResponse[0]) === null || _b === void 0 ? void 0 : _b.filename,
+                            message: 'Attachment added successfully',
+                        };
+                    }
+                    catch (error) {
+                        throw new n8n_workflow_1.NodeApiError(this.getNode(), error);
+                    }
                 }
                 else if (operation === 'get') {
                     const issueKey = this.getNodeParameter('issueKey', i);
